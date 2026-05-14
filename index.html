@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>iKalinga SMS — Community Health Messaging System</title>
-  <link rel="icon" href="assets/iKalinga SMS Logo.ico" type="image/x-icon" />
+  <link rel="icon" href="assets/iKalingaSMS-Logo.png" type="image/png" />
   <style>
     /* ── DESIGN TOKENS (from iKalinga SMS Application Design doc) ── */
     :root {
@@ -728,7 +728,14 @@
       gap: 2rem;
       margin-bottom: 2.5rem;
     }
-    .footer-brand-name { font-size: 1.15rem; font-weight: 900; color: var(--white); margin-bottom: .6rem; }
+    .footer-brand-name {
+      font-size: 1.15rem; font-weight: 900; color: var(--white); margin-bottom: .6rem;
+      display: flex; align-items: center; gap: 9px;
+    }
+    .footer-brand-name .footer-logo {
+      width: 30px; height: 30px; border-radius: 6px;
+      object-fit: contain;
+    }
     .footer-brand-name .gold { color: var(--gold); }
     .footer-brand p { font-size: .85rem; line-height: 1.7; }
     .footer-col h4 {
@@ -790,7 +797,7 @@
 <nav id="navbar">
   <div class="nav-inner">
     <a href="#home" class="nav-brand">
-      <div class="logo-box"><img src="assets/iKalinga SMS Logo.ico" alt="iKalinga SMS logo" /></div>
+      <div class="logo-box"><img src="assets/iKalingaSMS-Logo.png" alt="iKalingaSMS logo" /></div>
       <span>i<span class="gold">Kalinga</span>&nbsp;SMS</span>
     </a>
     <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">
@@ -1473,7 +1480,10 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <div class="footer-brand-name">i<span class="gold">Kalinga</span> SMS</div>
+        <div class="footer-brand-name">
+          <img src="assets/iKalingaSMS-Logo.png" alt="iKalingaSMS logo" class="footer-logo" />
+          <span>i<span class="gold">Kalinga</span>&nbsp;SMS</span>
+        </div>
         <p>A free, offline-first SMS health notification system for barangay health centers in the Philippines. Built by nursing students at SONAHBS. For the community.</p>
       </div>
       <div class="footer-col">
@@ -1567,12 +1577,3 @@
     sections.forEach(s => {
       if (window.scrollY >= s.offsetTop - 80) current = s.id;
     });
-    navLinks.forEach(a => {
-      a.style.background = a.getAttribute('href') === '#' + current
-        ? 'rgba(255,255,255,0.12)'
-        : 'transparent';
-    });
-  });
-</script>
-</body>
-</html>
