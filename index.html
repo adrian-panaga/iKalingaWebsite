@@ -1444,7 +1444,7 @@
       <div class="team-card">
         <div class="team-av">SR</div>
         <div class="team-name">Simon-Panaga, Rafmarine</div>
-        <div class="team-role">Proponent &amp; Developer</div>
+        <div class="team-role">Adviser</div>
       </div>
     </div>
 
@@ -1577,3 +1577,10 @@
     sections.forEach(s => {
       if (window.scrollY >= s.offsetTop - 80) current = s.id;
     });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>
