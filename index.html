@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iKalinga SMS — Community Health Messaging System</title>
+  <link rel="icon" href="assets/iKalinga SMS Logo.ico" type="image/x-icon" />
+  <style>
+    /* ── DESIGN TOKENS (from iKalinga SMS Application Design doc) ── */
+    :root {
+      --bg:          #F8F9FA;   /* Off-White   */
+      --navy:        #132032;   /* Deep Navy   */
+      --maroon:      #8E2A2B;   /* Primary Accent */
+      --gold:        #D8A63E;   /* Secondary Highlight */
+      --white:       #FFFFFF;
+      --navy-dark:   #0d1622;
+      --maroon-dark: #712122;
+      --border:      #e2e6ea;
+      --muted:       #6c757d;
+      --card:        #FFFFFF;
+      --font:        'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--navy); line-height: 1.65; }
+    a { text-decoration: none; }
+    img { max-width: 100%; }
+
+    /* ── TYPOGRAPHY HELPERS ── */
+    .section-tag {
+      display: inline-block;
+      background: rgba(142,42,43,.1);
+      color: var(--maroon);
+      padding: .3rem .9rem;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: .75rem;
+      line-height: 1.25;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 660px;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 80px 1.5rem; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: .7rem 1.4rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: .92rem;
+      transition: transform .15s, box-shadow .15s, background .15s;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+    .btn-maroon { background: var(--maroon); color: var(--white); }
+    .btn-maroon:hover { background: var(--maroon-dark); }
+    .btn-gold { background: var(--gold); color: var(--navy); }
+    .btn-gold:hover { background: #c9952e; }
+    .btn-outline { background: transparent; color: var(--white); border-color: rgba(255,255,255,.45); }
+    .btn-outline:hover { border-color: var(--white); background: rgba(255,255,255,.1); }
+    .btn-outline-navy { background: transparent; color: var(--navy); border-color: var(--border); }
+    .btn-outline-navy:hover { border-color: var(--navy); }
+    .btn-block { width: 100%; justify-content: center; }
+
+    /* ═══════════════════════════════════════════════════
+       NAVBAR
+    ═══════════════════════════════════════════════════ */
+    #navbar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--navy);
+      box-shadow: 0 2px 12px rgba(0,0,0,.35);
+    }
+    .nav-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--white);
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+    .nav-brand .logo-box {
+      width: 30px; height: 30px;
+      background: var(--maroon);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: .85rem; color: white;
+    }
+    .nav-brand .gold { color: var(--gold); }
+    .nav-links { display: flex; align-items: center; gap: .25rem; list-style: none; }
+    .nav-links a {
+      color: rgba(255,255,255,.8);
+      padding: .4rem .75rem;
+      border-radius: 5px;
+      font-size: .88rem;
+      transition: color .15s, background .15s;
+    }
+    .nav-links a:hover { color: var(--white); background: rgba(255,255,255,.1); }
+    .nav-links .nav-dl {
+      background: var(--maroon);
+      color: var(--white) !important;
+      font-weight: 700;
+      padding: .4rem .85rem;
+      border-radius: 5px;
+    }
+    .nav-links .nav-dl:hover { background: var(--maroon-dark) !important; }
+    .nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-toggle span {
+      display: block;
+      width: 22px; height: 2px;
+      background: white;
+      margin: 4px 0;
+      border-radius: 2px;
+      transition: all .2s;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════════════ */
+    #home {
+      background: linear-gradient(135deg, var(--navy) 0%, #1c3252 100%);
+      color: var(--white);
+      padding: 100px 1.5rem 90px;
+      position: relative;
+      overflow: hidden;
+    }
+    #home::after {
+      content: '';
+      position: absolute;
+      top: -120px; right: -80px;
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, rgba(216,166,62,.14) 0%, transparent 68%);
+      pointer-events: none;
+    }
+    #home::before {
+      content: '';
+      position: absolute;
+      bottom: -100px; left: -60px;
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, rgba(142,42,43,.2) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 3.5rem;
+      align-items: center;
+      position: relative; z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(216,166,62,.18);
+      border: 1px solid rgba(216,166,62,.4);
+      color: var(--gold);
+      padding: .35rem 1rem;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+    }
+    .hero-title {
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 1.1rem;
+    }
+    .hero-title .accent { color: var(--gold); }
+    .hero-desc {
+      font-size: 1.08rem;
+      color: rgba(255,255,255,.78);
+      line-height: 1.75;
+      margin-bottom: 2rem;
+      max-width: 520px;
+    }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .hero-stats { display: flex; gap: 2.5rem; }
+    .stat-num { font-size: 1.7rem; font-weight: 900; color: var(--gold); }
+    .stat-lbl { font-size: .75rem; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .06em; }
+
+    /* App mockup */
+    .app-mockup {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
+      padding: 1.25rem;
+      backdrop-filter: blur(8px);
+    }
+    .mock-win {
+      background: var(--bg);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.3);
+    }
+    .mock-bar {
+      background: var(--navy);
+      padding: .5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: var(--gold); }
+    .dot-g { background: #28c840; }
+    .mock-bar-title { color: rgba(255,255,255,.6); font-size: .78rem; margin-left: .5rem; }
+    .mock-body { padding: 1.25rem; }
+    .mock-field { margin-bottom: .9rem; }
+    .mock-label { font-size: .72rem; color: var(--muted); display: block; margin-bottom: .25rem; }
+    .mock-input {
+      width: 100%;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .45rem .7rem;
+      font-size: .82rem;
+      color: var(--navy);
+      font-family: var(--font);
+    }
+    .mock-input.sel { color: var(--maroon); font-weight: 700; }
+    .mock-textarea {
+      width: 100%;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .45rem .7rem;
+      font-size: .78rem;
+      color: #444;
+      height: 72px;
+      line-height: 1.5;
+    }
+    .mock-status { font-size: .75rem; color: #1a8c30; font-weight: 700; }
+    .mock-progress {
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      margin: .6rem 0;
+      overflow: hidden;
+    }
+    .mock-progress-fill {
+      height: 100%;
+      width: 62%;
+      background: var(--maroon);
+      border-radius: 3px;
+      animation: prog 2s ease-in-out infinite alternate;
+    }
+    @keyframes prog { from { width: 20% } to { width: 90% } }
+    .mock-btns { display: flex; gap: .5rem; margin-top: 1rem; }
+    .mock-btn {
+      padding: .42rem .85rem;
+      border-radius: 4px;
+      font-size: .8rem;
+      font-weight: 700;
+      border: none;
+      cursor: default;
+      font-family: var(--font);
+    }
+    .mock-btn-m { background: var(--maroon); color: white; }
+    .mock-btn-g { background: var(--gold); color: var(--navy); }
+
+    /* ═══════════════════════════════════════════════════
+       ABOUT
+    ═══════════════════════════════════════════════════ */
+    #about { background: var(--white); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .about-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      border-top: 3px solid var(--maroon);
+    }
+    .about-card .card-q {
+      font-size: .75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--maroon);
+      margin-bottom: .6rem;
+    }
+    .about-card p { font-size: .9rem; color: #3a3a3a; line-height: 1.7; }
+    .about-card strong { color: var(--navy); }
+
+    /* ═══════════════════════════════════════════════════
+       FEATURES
+    ═══════════════════════════════════════════════════ */
+    #features { background: var(--bg); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .feat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.6rem;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .feat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,.07); }
+    .feat-icon {
+      width: 46px; height: 46px;
+      background: rgba(142,42,43,.1);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: .9rem;
+    }
+    .feat-card h3 { font-size: .97rem; font-weight: 700; margin-bottom: .45rem; color: var(--navy); }
+    .feat-card p { font-size: .87rem; color: #4a4a4a; line-height: 1.65; }
+
+    /* ═══════════════════════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════════════════════ */
+    #how { background: var(--white); }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      counter-reset: how-step;
+    }
+    .how-step {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      position: relative;
+    }
+    .how-step::after {
+      content: '→';
+      position: absolute;
+      right: -1rem;
+      top: 1.8rem;
+      color: var(--gold);
+      font-size: 1.2rem;
+    }
+    .how-step:last-child::after { display: none; }
+    .how-num {
+      counter-increment: how-step;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--maroon);
+      color: white;
+      font-weight: 800;
+      font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto .9rem;
+    }
+    .how-step h4 { font-size: .9rem; font-weight: 700; color: var(--navy); margin-bottom: .4rem; }
+    .how-step p { font-size: .83rem; color: var(--muted); line-height: 1.6; }
+
+    /* ═══════════════════════════════════════════════════
+       DOWNLOAD
+    ═══════════════════════════════════════════════════ */
+    #download { background: var(--bg); }
+    .dl-notice {
+      background: rgba(216,166,62,.1);
+      border: 1px solid rgba(216,166,62,.35);
+      border-radius: 8px;
+      padding: .9rem 1.2rem;
+      font-size: .87rem;
+      color: #6b4800;
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      margin-bottom: 1.75rem;
+      line-height: 1.6;
+    }
+    .dl-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1c3252 100%);
+      border-radius: 14px;
+      padding: 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: center;
+      color: var(--white);
+      margin-bottom: 1.75rem;
+    }
+    .dl-ver-badge {
+      display: inline-block;
+      background: rgba(216,166,62,.22);
+      border: 1px solid rgba(216,166,62,.5);
+      color: var(--gold);
+      padding: .22rem .65rem;
+      border-radius: 20px;
+      font-size: .77rem;
+      font-weight: 700;
+      margin-bottom: .7rem;
+    }
+    .dl-title { font-size: 1.5rem; font-weight: 800; margin-bottom: .35rem; }
+    .dl-meta { color: rgba(255,255,255,.58); font-size: .87rem; margin-bottom: 1.1rem; }
+    .dl-desc { color: rgba(255,255,255,.72); font-size: .88rem; margin-bottom: 1.5rem; }
+    .dl-platform { text-align: center; color: rgba(255,255,255,.4); }
+    .dl-platform span { font-size: 3rem; display: block; }
+    .dl-platform small { font-size: .78rem; }
+
+    .sysreq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .sysreq-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+    .sysreq-card h4 {
+      font-size: .88rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 1rem;
+      padding-bottom: .5rem;
+      border-bottom: 2px solid var(--gold);
+    }
+    .sysreq-card ul { list-style: none; }
+    .sysreq-card li {
+      display: flex;
+      align-items: flex-start;
+      gap: .5rem;
+      font-size: .87rem;
+      color: #3a3a3a;
+      padding: .28rem 0;
+    }
+    .sysreq-card li::before {
+      content: '✓';
+      color: var(--maroon);
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: .05rem;
+    }
+    .dl-helper { text-align: center; margin-top: 1.25rem; font-size: .87rem; color: var(--muted); }
+    .dl-helper a { color: var(--maroon); font-weight: 600; }
+
+    /* ═══════════════════════════════════════════════════
+       RELEASE NOTES
+    ═══════════════════════════════════════════════════ */
+    #release-notes { background: var(--white); }
+    .rn-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 1.1rem;
+      overflow: hidden;
+    }
+    .rn-item.latest { border-left: 4px solid #28c840; }
+    .rn-header {
+      padding: 1.1rem 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      background: var(--white);
+    }
+    .rn-header:hover { background: var(--bg); }
+    .rn-ver-wrap { display: flex; align-items: center; gap: .85rem; }
+    .rn-ver { font-size: 1.05rem; font-weight: 800; color: var(--navy); }
+    .rn-badge {
+      padding: .18rem .55rem;
+      border-radius: 4px;
+      font-size: .72rem;
+      font-weight: 800;
+    }
+    .badge-latest { background: rgba(40,200,64,.15); color: #1a8c30; }
+    .badge-stable { background: rgba(142,42,43,.1); color: var(--maroon); }
+    .rn-date { color: var(--muted); font-size: .83rem; }
+    .rn-toggle { color: var(--muted); font-size: .8rem; transition: transform .2s; }
+    .rn-body {
+      border-top: 1px solid var(--border);
+      padding: 1.4rem;
+      display: none;
+    }
+    .rn-body.open { display: block; }
+    .rn-section { margin-bottom: 1.1rem; }
+    .rn-section h4 {
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      margin-bottom: .55rem;
+    }
+    .rn-section ul { list-style: none; }
+    .rn-section li {
+      display: flex;
+      align-items: flex-start;
+      gap: .55rem;
+      font-size: .88rem;
+      color: #3a3a3a;
+      padding: .22rem 0;
+      line-height: 1.55;
+    }
+    .tag {
+      flex-shrink: 0;
+      padding: .1rem .38rem;
+      border-radius: 3px;
+      font-size: .68rem;
+      font-weight: 800;
+      margin-top: .15rem;
+    }
+    .tag-new { background: rgba(40,200,64,.15); color: #1a8c30; }
+    .tag-fix { background: rgba(255,165,0,.15); color: #8a5000; }
+    .tag-sec { background: rgba(142,42,43,.1); color: var(--maroon); }
+    .tag-imp { background: rgba(19,32,50,.1); color: var(--navy); }
+    .rn-future {
+      background: var(--bg);
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .rn-future a { color: var(--maroon); font-weight: 600; }
+
+    /* ═══════════════════════════════════════════════════
+       COMMUNITY
+    ═══════════════════════════════════════════════════ */
+    #community { background: var(--bg); }
+    .comm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem; }
+    .comm-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .comm-icon { font-size: 2.2rem; margin-bottom: .75rem; }
+    .comm-card h3 { font-size: 1.05rem; font-weight: 800; color: var(--navy); margin-bottom: .55rem; }
+    .comm-card p { font-size: .89rem; color: #4a4a4a; line-height: 1.7; margin-bottom: 1.25rem; flex: 1; }
+    .comm-what-to-include {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: .9rem 1rem;
+      margin-bottom: 1.25rem;
+      font-size: .83rem;
+      color: #3a3a3a;
+      line-height: 1.7;
+    }
+    .comm-what-to-include strong {
+      display: block;
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin-bottom: .4rem;
+    }
+    .comm-what-to-include ul { list-style: none; }
+    .comm-what-to-include li::before { content: '• '; color: var(--maroon); font-weight: 700; }
+    .comm-no-acct {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .78rem;
+      color: #1a8c30;
+      font-weight: 700;
+      margin-top: .65rem;
+    }
+    .how-report {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    .how-report h3 { font-size: 1.05rem; font-weight: 800; color: var(--navy); margin-bottom: 1.5rem; }
+    .report-steps { list-style: none; counter-reset: r; }
+    .report-steps li {
+      counter-increment: r;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .report-steps li::before {
+      content: counter(r);
+      min-width: 28px; height: 28px;
+      background: var(--maroon);
+      color: white;
+      border-radius: 50%;
+      font-size: .82rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-txt strong { display: block; font-size: .9rem; color: var(--navy); margin-bottom: .2rem; }
+    .step-txt span { font-size: .84rem; color: #555; line-height: 1.6; }
+
+    /* ═══════════════════════════════════════════════════
+       FAQ
+    ═══════════════════════════════════════════════════ */
+    #faq { background: var(--white); }
+    .faq-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: .65rem;
+      overflow: hidden;
+    }
+    .faq-q {
+      padding: 1rem 1.4rem;
+      font-weight: 700;
+      font-size: .93rem;
+      color: var(--navy);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .faq-q:hover { background: #eef0f2; }
+    .faq-arrow { transition: transform .2s; color: var(--muted); font-size: .8rem; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-a {
+      display: none;
+      padding: 0 1.4rem 1.1rem;
+      font-size: .89rem;
+      color: #3a3a3a;
+      line-height: 1.72;
+      border-top: 1px solid var(--border);
+      padding-top: .9rem;
+    }
+    .faq-item.open .faq-a { display: block; }
+
+    /* ═══════════════════════════════════════════════════
+       TEAM
+    ═══════════════════════════════════════════════════ */
+    #team { background: var(--bg); }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .team-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+    }
+    .team-av {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--maroon), var(--navy));
+      color: white;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto .7rem;
+    }
+    .team-name { font-size: .84rem; font-weight: 700; color: var(--navy); line-height: 1.3; }
+    .team-role { font-size: .74rem; color: var(--muted); margin-top: .2rem; }
+    .endorsement-bar {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      display: flex;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .endorse-item small { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: block; margin-bottom: .25rem; }
+    .endorse-item strong { font-size: .92rem; color: var(--navy); display: block; }
+    .endorse-item span { font-size: .82rem; color: #555; }
+
+    /* ═══════════════════════════════════════════════════
+       PRIVACY
+    ═══════════════════════════════════════════════════ */
+    #privacy { background: var(--white); }
+    .privacy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+    .priv-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+    .priv-card h3 { font-size: .95rem; font-weight: 700; color: var(--navy); margin-bottom: .55rem; margin-top: .5rem; }
+    .priv-card p { font-size: .87rem; color: #3a3a3a; line-height: 1.7; }
+
+    /* ═══════════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════════ */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,.65);
+      padding: 3.5rem 1.5rem 2rem;
+    }
+    .footer-inner { max-width: 1080px; margin: 0 auto; }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+    .footer-brand-name { font-size: 1.15rem; font-weight: 900; color: var(--white); margin-bottom: .6rem; }
+    .footer-brand-name .gold { color: var(--gold); }
+    .footer-brand p { font-size: .85rem; line-height: 1.7; }
+    .footer-col h4 {
+      color: var(--white);
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 1rem;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: .45rem; }
+    .footer-col a { color: rgba(255,255,255,.58); font-size: .87rem; transition: color .15s; }
+    .footer-col a:hover { color: var(--gold); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .82rem;
+      flex-wrap: wrap;
+      gap: .75rem;
+    }
+    .footer-bottom a { color: rgba(255,255,255,.45); }
+    .footer-bottom a:hover { color: var(--gold); }
+
+    /* ═══════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .hero-wrap { grid-template-columns: 1fr; }
+      .app-mockup { display: none; }
+      .about-grid, .features-grid, .privacy-grid { grid-template-columns: 1fr 1fr; }
+      .how-steps { grid-template-columns: 1fr 1fr; }
+      .how-step::after { display: none; }
+      .team-grid { grid-template-columns: repeat(3, 1fr); }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .hero-title { font-size: 2.1rem; }
+      .about-grid, .features-grid, .privacy-grid,
+      .comm-grid, .sysreq-grid, .how-steps { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .dl-hero { grid-template-columns: 1fr; }
+      .nav-links { display: none; flex-direction: column; position: absolute; top: 62px; left: 0; right: 0; background: var(--navy-dark); padding: 1rem; gap: .25rem; }
+      .nav-links.open { display: flex; }
+      .nav-toggle { display: block; }
+      .hero-stats { gap: 1.5rem; }
+      section { padding: 60px 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#home" class="nav-brand">
+      <div class="logo-box">iK</div>
+      i<span class="gold">Kalinga</span>&nbsp;SMS
+    </a>
+    <button class="nav-toggle" onclick="toggleNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#release-notes">Releases</a></li>
+      <li><a href="#community">Community</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#download" class="nav-dl">⬇ Download</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section id="home">
+  <div class="hero-wrap">
+    <div>
+      <div class="hero-badge">🏥 For Barangay Health Centers · Baguio City, Philippines</div>
+      <h1 class="hero-title">
+        Health alerts delivered<br>by <span class="accent">SMS</span> — no internet<br>required.
+      </h1>
+      <p class="hero-desc">
+        iKalinga SMS is a free, offline-first Windows desktop application that helps Barangay Health Workers (BHWs) send targeted SMS broadcasts to community residents — using only a USB modem and a SIM card. Fully compliant with the Data Privacy Act (RA 10173).
+      </p>
+      <div class="hero-btns">
+        <a href="#download" class="btn btn-maroon">⬇ Download Free</a>
+        <a href="#about" class="btn btn-outline">Learn More</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">14</div>
+          <div class="stat-lbl">Barangays Served</div>
+        </div>
+        <div>
+          <div class="stat-num">100+</div>
+          <div class="stat-lbl">Daily Patients</div>
+        </div>
+        <div>
+          <div class="stat-num">AES-256</div>
+          <div class="stat-lbl">Encryption</div>
+        </div>
+        <div>
+          <div class="stat-num">0</div>
+          <div class="stat-lbl">Internet Required</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Mockup -->
+    <div class="app-mockup">
+      <div class="mock-win">
+        <div class="mock-bar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <span class="mock-bar-title">iKalinga SMS — Messaging Hub</span>
+        </div>
+        <div class="mock-body">
+          <div class="mock-field">
+            <label class="mock-label">Select Recipients</label>
+            <div class="mock-input sel">Pregnant Mothers ▾</div>
+          </div>
+          <div class="mock-field">
+            <label class="mock-label">Message Body (1 SMS Part)</label>
+            <div class="mock-textarea">Maayong hapon! Ang libre na prenatal checkup sa City Camp District Health Center ay gaganapin ngayong Biyernes, Mayo 16 mula 8AM–12NN...</div>
+          </div>
+          <div class="mock-field">
+            <span class="mock-status">📡 COM3 — Modem Connected ●</span>
+            <div class="mock-progress"><div class="mock-progress-fill"></div></div>
+            <span class="mock-label">Sending 12 of 19 messages…</span>
+          </div>
+          <div class="mock-btns">
+            <button class="mock-btn mock-btn-m">✉ Send Broadcast</button>
+            <button class="mock-btn mock-btn-g">↻ Refresh</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     ABOUT
+══════════════════════════════════════ -->
+<section id="about">
+  <div class="container">
+    <div class="section-tag">About iKalinga SMS</div>
+    <h2 class="section-title">Built for the communities that need it most</h2>
+    <p class="section-sub">iKalinga SMS was born from a Quality Improvement (QI) initiative to close the persistent communication gap between local health centers and the communities they serve.</p>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="card-q">🧐 What is it?</div>
+        <p>A <strong>secure, offline-compatible C# desktop application</strong> that allows authorized barangay health workers to send targeted SMS broadcasts to community residents. It manages an encrypted resident database and sends messages through a local USB GSM modem — with <strong>no internet connection required</strong>.</p>
+      </div>
+      <div class="about-card">
+        <div class="card-q">👥 Who made it?</div>
+        <p>Developed by nursing students at the <strong>School of Nursing and Allied Health &amp; Behavioral Sciences (SONAHBS)</strong> as a QI capstone project. Designed for use by <strong>Barangay Health Workers (BHWs)</strong> and health center staff — people who may not have advanced technical backgrounds.</p>
+      </div>
+      <div class="about-card">
+        <div class="card-q">📍 Where is it used?</div>
+        <p>Currently piloted at the <strong>City Camp District Health Center</strong> in Baguio City, Cordillera Administrative Region (CAR), Philippines — a center that serves approximately <strong>100 patients per day</strong> across <strong>14 barangays</strong>. Designed to work at any similar community health center.</p>
+      </div>
+      <div class="about-card">
+        <div class="card-q">📅 When did it start?</div>
+        <p>The project was formally proposed on <strong>October 29, 2025</strong>, following a needs assessment at City Camp District Health Center. The assessment — led by Head Nurse <strong>Mr. Andrew Nathaniel Ferrer</strong> and <strong>Dr. Nelson Hora</strong> — confirmed critical gaps in health communication across their 14-barangay coverage area.</p>
+      </div>
+      <div class="about-card">
+        <div class="card-q">⚙️ How does it work?</div>
+        <p>The app uses a <strong>USB GSM Modem (SIM7600X)</strong> and AT Commands to send SMS directly from a dedicated health center computer. Resident data is stored in an <strong>AES-256 encrypted SQLite database</strong> — a single file that becomes completely unreadable when the app is closed. No cloud, no third-party APIs, no data leaving the facility.</p>
+      </div>
+      <div class="about-card">
+        <div class="card-q">💡 Why was it built?</div>
+        <p>Community residents were missing <strong>free vaccinations, check-ups, and medicine distributions</strong> because health centers relied on unreliable methods — posters, word-of-mouth, and a sporadically updated Facebook page. iKalinga SMS delivers <strong>timely, direct, and inclusive</strong> health notifications to everyone, regardless of internet access.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FEATURES
+══════════════════════════════════════ -->
+<section id="features">
+  <div class="container">
+    <div class="section-tag">Features</div>
+    <h2 class="section-title">Everything a health center needs</h2>
+    <p class="section-sub">Designed to be simple enough for BHWs to use daily, yet robust enough to protect sensitive patient data at the highest standard.</p>
+
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">🔐</div>
+        <h3>Digital Vault (AES-256)</h3>
+        <p>The entire resident database is encrypted at rest using military-grade AES-256 encryption. When the app is closed, the database becomes completely unreadable — protecting patient privacy even if the computer is stolen or lost.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📡</div>
+        <h3>Offline SMS Broadcasting</h3>
+        <p>Send SMS broadcasts directly through a USB GSM Modem using standard AT Commands — zero internet required. Patient phone numbers are never sent to a third-party service and never leave the health center's computer.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🎯</div>
+        <h3>Targeted Group Messaging</h3>
+        <p>Create custom SMS groups like "Pregnant Mothers", "Hypertensive", "Senior Citizens", or "Diabetic". Filter by Barangay, Sex, and Age Range to send the right health announcement to exactly the right people.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🛡️</div>
+        <h3>RA 10173 Compliance</h3>
+        <p>Mandatory, logged consent tracking for every resident — as required by the Data Privacy Act. No resident can be saved to the database without their explicit documented consent to receive SMS updates.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔑</div>
+        <h3>Role-Based Access Control</h3>
+        <p>Two distinct access levels: <strong>Admin</strong> (full access to manage residents, groups, and user accounts) and <strong>Reader</strong> (send SMS broadcasts only, cannot alter records). Prevents accidental data changes.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📋</div>
+        <h3>Immutable Audit Logs</h3>
+        <p>Every action is tracked — who logged in, what messages were sent, who added or modified a resident record. Logs are read-only within the app and can be exported as a CSV file for compliance or health coordinator review.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">👤</div>
+        <h3>Two-Step Security</h3>
+        <p>Access requires two sequential authentications: a Master Password (Vault Key) that decrypts the database, then a personal Username and Password. Even if one credential is compromised, data remains protected.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <h3>Power-Loss Recovery</h3>
+        <p>If power is lost while the app is running, a built-in recovery process safely restores the database the next time the app is opened. Simply enter the Master Password and continue — no data is lost.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🆓</div>
+        <h3>Completely Free</h3>
+        <p>iKalinga SMS is a community project with no licensing fees, no subscriptions, and no hidden costs. The only ongoing cost is the SIM card's unli-text plan — typically less than ₱100/month.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     HOW IT WORKS
+══════════════════════════════════════ -->
+<section id="how">
+  <div class="container">
+    <div class="section-tag">How It Works</div>
+    <h2 class="section-title">Simple for health workers, secure by design</h2>
+    <p class="section-sub">From installation to sending your first broadcast — here's the full flow.</p>
+
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <h4>Install &amp; Set Up</h4>
+        <p>Run the installer, plug in the USB GSM Modem, and complete the one-time First-Time Setup to create your Vault Master Password and Admin account.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <h4>Unlock &amp; Log In</h4>
+        <p>On each use, enter the Vault Master Password to decrypt the database, then log in with your personal username and password to access your role.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <h4>Register Residents</h4>
+        <p>Admins add resident details — Name, Phone, Barangay, Sex, Date of Birth — with their mandatory RA 10173 consent checked and logged.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <h4>Send Broadcasts</h4>
+        <p>Select a recipient group, compose your health announcement, and click Send. The app delivers it via the USB modem — SMS by SMS, with a live progress bar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     DOWNLOAD
+══════════════════════════════════════ -->
+<section id="download">
+  <div class="container">
+    <div class="section-tag">Download</div>
+    <h2 class="section-title">Get iKalinga SMS</h2>
+    <p class="section-sub">Free for all community health centers — always will be.</p>
+
+    <div class="dl-notice">
+      <span>⚠️</span>
+      <span><strong>Authorized Use Only.</strong> This software is intended for barangay health workers and health center staff. By downloading, you agree to use it in compliance with the Data Privacy Act (RA 10173). Patient data must be handled with proper consent and care.</span>
+    </div>
+
+    <div class="dl-hero">
+      <div>
+        <div class="dl-ver-badge">⭐ Latest Stable Release</div>
+        <div class="dl-title">iKalinga SMS — Version 1.0.0</div>
+        <div class="dl-meta">Released: May 2026 &nbsp;·&nbsp; Platform: Windows 10 / 11 (64-bit) &nbsp;·&nbsp; Size: ~45 MB</div>
+        <p class="dl-desc">Includes the iKalinga SMS installer, SIM7600X USB modem drivers for Windows 10/11, and the full Setup &amp; User Manual (PDF).</p>
+        <a href="https://drive.google.com/drive/folders/1sj7T8m5o-G1GzfLhlneug1BvNRS_Dz1d?usp=sharing" target="_blank" class="btn btn-gold">
+          ⬇ Download Installer (.exe) — Google Drive
+        </a>
+      </div>
+      <div class="dl-platform">
+        <span>🖥️</span>
+        <small>Windows Only<br>10 / 11 (64-bit)</small>
+      </div>
+    </div>
+
+    <div class="sysreq-grid">
+      <div class="sysreq-card">
+        <h4>⚙️ Software Requirements</h4>
+        <ul>
+          <li>Windows 10 or Windows 11 (64-bit)</li>
+          <li>.NET 6.0 Runtime or later (bundled in installer)</li>
+          <li>SIM7600X USB Modem drivers (bundled in installer)</li>
+          <li>At least 200 MB of free disk space</li>
+          <li>Minimum 4 GB RAM recommended</li>
+          <li>No internet connection required after installation</li>
+        </ul>
+      </div>
+      <div class="sysreq-card">
+        <h4>📦 Hardware Required (Not Included)</h4>
+        <ul>
+          <li>USB GSM Modem — Waveshare SIM7600X (recommended)</li>
+          <li>SIM card with active unli-text plan</li>
+          <li>4G LTE antenna (included with SIM7600X modem)</li>
+          <li>Dedicated Windows computer at the health center</li>
+          <li>Available USB port on the computer</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="dl-helper">
+      Need help installing? Read the <a href="#faq">FAQ</a> or <a href="#community">submit a support request</a> on GitHub Issues.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     RELEASE NOTES
+══════════════════════════════════════ -->
+<section id="release-notes">
+  <div class="container">
+    <div class="section-tag">Release Notes</div>
+    <h2 class="section-title">Version History</h2>
+    <p class="section-sub">Full changelog for every release of iKalinga SMS. Watch the GitHub repository to be notified when a new version is available.</p>
+
+    <!-- v1.0.0 -->
+    <div class="rn-item latest">
+      <div class="rn-header" onclick="toggleRN(this)">
+        <div class="rn-ver-wrap">
+          <span class="rn-ver">Version 1.0.0</span>
+          <span class="rn-badge badge-latest">Latest</span>
+          <span class="rn-badge badge-stable">Stable</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <span class="rn-date">May 2026 — Initial Release</span>
+          <span class="rn-toggle">▼</span>
+        </div>
+      </div>
+      <div class="rn-body open">
+        <div class="rn-section">
+          <h4>🚀 New Features</h4>
+          <ul>
+            <li><span class="tag tag-new">NEW</span> Digital Vault — AES-256 encrypted SQLite database; database locks automatically on close</li>
+            <li><span class="tag tag-new">NEW</span> Two-step login: Vault Master Password (decryption key) + personal Username/Password</li>
+            <li><span class="tag tag-new">NEW</span> Role-Based Access Control — Admin (full access) and Reader (send-only) roles</li>
+            <li><span class="tag tag-new">NEW</span> Resident Manager — add, edit, delete community residents with mandatory RA 10173 consent checkbox</li>
+            <li><span class="tag tag-new">NEW</span> SMS Group Manager — create and manage named broadcast groups (e.g., "Pregnant", "Hypertensive", "Senior Citizens")</li>
+            <li><span class="tag tag-new">NEW</span> Messaging Hub — compose and send SMS broadcasts via USB GSM Modem; recipient filtering by Barangay, Sex, and Age Range; live progress bar</li>
+            <li><span class="tag tag-new">NEW</span> System Settings — COM port configuration, modem connection testing, and staff user management (Admin only)</li>
+            <li><span class="tag tag-new">NEW</span> Audit Logs — immutable activity log tracking all logins, SMS sends, and data changes; exportable as CSV</li>
+            <li><span class="tag tag-new">NEW</span> First-Time Setup wizard for new installations (set Vault Master Password + create Admin account)</li>
+            <li><span class="tag tag-new">NEW</span> Power-loss recovery — safe database restoration after unexpected shutdown</li>
+          </ul>
+        </div>
+        <div class="rn-section">
+          <h4>🔐 Security</h4>
+          <ul>
+            <li><span class="tag tag-sec">SEC</span> All user passwords stored as SHA-256 hashed values — never plain text</li>
+            <li><span class="tag tag-sec">SEC</span> Database automatically re-encrypted (AES-256) on every logout and shutdown</li>
+            <li><span class="tag tag-sec">SEC</span> Temporary decrypted file (temp.db) securely deleted after each session</li>
+            <li><span class="tag tag-sec">SEC</span> Invalid Vault Key returns a generic error — does not reveal whether the file or password is wrong (security best practice)</li>
+            <li><span class="tag tag-sec">SEC</span> SMS sending runs on a background thread — prevents UI freeze during broadcasts</li>
+          </ul>
+        </div>
+        <div class="rn-section">
+          <h4>📋 Known Limitations (v1.0.0)</h4>
+          <ul>
+            <li><span class="tag tag-imp">NOTE</span> Windows only — no macOS or Linux support at this time</li>
+            <li><span class="tag tag-imp">NOTE</span> SMS sending requires a physically connected USB GSM Modem; Wi-Fi or Bluetooth modems are not supported</li>
+            <li><span class="tag tag-imp">NOTE</span> A lost Vault Master Password cannot be recovered — the database must be re-initialized</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Future placeholder -->
+    <div class="rn-future">
+      <div style="font-size:1.5rem;margin-bottom:.5rem;">📬</div>
+      <p>Future releases will appear here. Check back on this page whenever you want to see if a new version is available — or bookmark it for easy access.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     COMMUNITY
+══════════════════════════════════════ -->
+<section id="community">
+  <div class="container">
+    <div class="section-tag">Community</div>
+    <h2 class="section-title">Help us improve iKalinga SMS</h2>
+    <p class="section-sub">Found something that isn't working? Have an idea that would make your daily work easier? We want to hear from you — no technical background or account required.</p>
+
+    <div class="comm-grid">
+      <!-- Bug Report -->
+      <div class="comm-card">
+        <div class="comm-icon">🐛</div>
+        <h3>Something isn't working?</h3>
+        <p>If the app shows an error, crashes unexpectedly, sends a message to the wrong group, or the modem isn't connecting — let us know using the form below. It only takes a few minutes and helps us fix it quickly.</p>
+        <div class="comm-what-to-include">
+          <strong>Try to include:</strong>
+          <ul>
+            <li>What you were trying to do</li>
+            <li>What happened (the error message, if any)</li>
+            <li>What you expected to happen instead</li>
+            <li>Your exported Audit Log (.csv) if possible</li>
+          </ul>
+        </div>
+        <a href="https://forms.gle/AFVFBJJEGbjb2Fc38" target="_blank" class="btn btn-maroon btn-block">🐛 Report a Problem</a>
+        <div class="comm-no-acct">✅ No account needed — just fill and submit</div>
+      </div>
+
+      <!-- Feature Request -->
+      <div class="comm-card">
+        <div class="comm-icon">💡</div>
+        <h3>Have an idea or suggestion?</h3>
+        <p>You and your fellow BHWs know the real-world needs better than anyone. If there's something iKalinga SMS doesn't do yet — or something it could do better — share your idea. Even a simple description helps.</p>
+        <div class="comm-what-to-include">
+          <strong>Try to include:</strong>
+          <ul>
+            <li>What task or problem prompted the idea</li>
+            <li>How you'd like it to work</li>
+            <li>Who at the health center it would help</li>
+            <li>How often you'd use the feature</li>
+          </ul>
+        </div>
+        <a href="https://forms.gle/9kFkyohzcz4pxE9f7" target="_blank" class="btn btn-outline-navy btn-block">💡 Share an Idea</a>
+        <div class="comm-no-acct">✅ No account needed — just fill and submit</div>
+      </div>
+    </div>
+
+    <div class="how-report">
+      <h3>❓ What happens after I submit?</h3>
+      <ol class="report-steps">
+        <li>
+          <div class="step-txt">
+            <strong>Your response goes directly to the developer</strong>
+            <span>All form submissions are reviewed regularly — usually within a few days. You'll receive a follow-up at the email address you provide in the form.</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-txt">
+            <strong>Bug reports get prioritized by severity</strong>
+            <span>Critical bugs — like data loss, encryption errors, or crashes — are addressed first and released as a patch update. Minor display issues are batched into the next regular update.</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-txt">
+            <strong>Feature ideas go into the roadmap</strong>
+            <span>All suggestions are considered. Popular requests — especially from active health centers — are more likely to be included in the next minor release. You'll be credited if your idea makes it in.</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-txt">
+            <strong>A new version is released and listed on this page</strong>
+            <span>When a fix or feature is ready, a new installer is uploaded to Google Drive and the Release Notes are updated here. Check back on this page for the latest version.</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FAQ
+══════════════════════════════════════ -->
+<section id="faq">
+  <div class="container">
+    <div class="section-tag">FAQ</div>
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <p class="section-sub">Quick answers to the most common questions about installing, using, and troubleshooting iKalinga SMS.</p>
+
+    <div id="faq-list">
+
+      <div class="faq-item open">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          What do I do when the app shows "No COM ports found" or a modem error?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          Unplug the USB modem, wait 5 seconds, then plug it into a different USB port. Inside the app, go to System Settings and click the Refresh (circular arrow) button. If it still doesn't appear, open Windows Device Manager and confirm the SIM7600X drivers are installed correctly — look for "SimTech AT Port" under "Ports (COM &amp; LPT)". The COM port number listed there must match the one selected in the app.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          I forgot the Vault Master Password. Can I recover my data?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          Unfortunately, no. The Vault Master Password is the only key to the AES-256 encrypted database. There is no backdoor and no account recovery — this is intentional to ensure maximum data privacy. We strongly recommend writing down the Master Password and storing it securely in a locked location at the health center (e.g., with the facility's administrator). If the password is permanently lost, a fresh database must be initialized and resident records re-entered.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          The power went out while the app was running. Is my data safe?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          Yes. When you reopen the app, you will see a warning: "System recovered from unexpected shutdown." Simply enter your Vault Master Password as usual. The app has a built-in recovery process that safely restores your database from the state before the power loss. No data will be lost.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Can I use iKalinga SMS without a USB modem or SIM card?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          Partially. All features related to the resident database — adding residents, managing groups, editing records, viewing audit logs — work without a modem. However, to send SMS broadcasts, a physically connected USB GSM Modem with an active SIM card (unli-text plan) is required. The Messaging Hub will show a modem error if no device is detected.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Is iKalinga SMS compliant with the Data Privacy Act (RA 10173)?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          Yes — compliance was a core design requirement from day one. Every resident must have their explicit, documented consent recorded before being added to the database. Phone numbers never leave the health center computer and are never transmitted to any cloud service or third-party API. The database is encrypted at rest (AES-256), and all actions are permanently logged in an immutable audit trail.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Can a Reader (non-Admin) still send SMS messages?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          Yes. Users with the "Reader" role have full access to the Messaging Hub and can compose and send SMS broadcasts to any group. They can also view the resident directory. What they cannot do is add, edit, or delete any resident records, manage SMS groups, or create/delete user accounts — those actions are restricted to Admins only.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          How do I safely close the application?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          Always close iKalinga SMS by clicking the standard "X" button at the top right of the window. The app will ask "Are you sure you want to exit?" — click Yes. The app will then re-encrypt the database, securely delete the temporary file, and shut down safely. Never force-close the app through Task Manager, as this may interrupt the encryption process and could require recovery on the next launch.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Can iKalinga SMS be used by health centers outside of Baguio City?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          Absolutely. While iKalinga SMS was initially developed and piloted at City Camp District Health Center in Baguio City, it is designed to work at any barangay-level health center in the Philippines with a Windows computer and a USB GSM Modem. The software is free. If your health center would like assistance setting it up, please reach out through the Community page on GitHub.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          A staff member forgot their login password. What can we do?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          An Admin can resolve this easily. Go to System Settings → User Management, find the staff member's account, and delete it. Then create a new account for them with a new username and password. This does not affect any resident data or audit logs.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          What modem do you recommend?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-a">
+          The <strong>Waveshare SIM7600X 4G HAT (USB version)</strong> is the recommended modem. It supports AT Commands over a standard serial port, includes a 4G LTE antenna, and its drivers are included in the iKalinga SMS installer package. Any USB GSM Modem that uses the Hayes AT Command set and appears as a "SimTech AT Port" in Windows Device Manager should also work, but the SIM7600X has been tested and verified.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PRIVACY
+══════════════════════════════════════ -->
+<section id="privacy">
+  <div class="container">
+    <div class="section-tag">Privacy &amp; Compliance</div>
+    <h2 class="section-title">Built around patient privacy</h2>
+    <p class="section-sub">iKalinga SMS was designed from the ground up to comply with the Data Privacy Act of the Philippines (Republic Act 10173).</p>
+
+    <div class="privacy-grid">
+      <div class="priv-card">
+        <div style="font-size:1.75rem;">🔒</div>
+        <h3>Data Stored Locally Only</h3>
+        <p>All resident data lives exclusively on the health center's computer. There are no cloud uploads, no API calls, and no third-party services involved. If the computer is offline, the app works identically.</p>
+      </div>
+      <div class="priv-card">
+        <div style="font-size:1.75rem;">✅</div>
+        <h3>Mandatory Consent Logging</h3>
+        <p>The system enforces a mandatory "Consent (RA 10173)" checkbox for every resident. If the checkbox is not checked, the system will refuse to save the record and display an explanatory message.</p>
+      </div>
+      <div class="priv-card">
+        <div style="font-size:1.75rem;">🗂️</div>
+        <h3>Audit Trail</h3>
+        <p>Every action in the system — logins, message sends, record additions and deletions — is permanently logged with a timestamp and the acting user's name. Logs are read-only inside the app.</p>
+      </div>
+      <div class="priv-card">
+        <div style="font-size:1.75rem;">🛡️</div>
+        <h3>AES-256 Encryption at Rest</h3>
+        <p>The database file is encrypted using AES-256 whenever the app is not actively running. This is the same encryption standard used in banking and government systems.</p>
+      </div>
+      <div class="priv-card">
+        <div style="font-size:1.75rem;">🚫</div>
+        <h3>Phone Numbers Never Leave the Center</h3>
+        <p>SMS messages are sent directly from the app to the USB modem using serial commands. No phone number is ever transmitted to an online gateway, a server, or any external party.</p>
+      </div>
+      <div class="priv-card">
+        <div style="font-size:1.75rem;">🔑</div>
+        <h3>Hashed Passwords</h3>
+        <p>Staff account passwords are never stored in plain text. They are stored as one-way SHA-256 hashes — even system administrators cannot read them from the database.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     TEAM
+══════════════════════════════════════ -->
+<section id="team">
+  <div class="container">
+    <div class="section-tag">The Team</div>
+    <h2 class="section-title">Built by future nurses, for their community</h2>
+    <p class="section-sub">iKalinga SMS was developed as a Quality Improvement capstone project by nursing students at SONAHBS, Baguio City — endorsed by faculty leadership and the City Camp District Health Center.</p>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-av">LJ</div>
+        <div class="team-name">Li, Jialiang</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">VJ</div>
+        <div class="team-name">Viray, Justin Aaron L.</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">AJ</div>
+        <div class="team-name">Abalos, Jalen Rose R.</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">BM</div>
+        <div class="team-name">Balingit, Ma. Ricza L.</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">IC</div>
+        <div class="team-name">Inso, Czarina Nicole G.</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">PF</div>
+        <div class="team-name">Pajares, Frances Therese V.</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">PR</div>
+        <div class="team-name">Peña, Rayna Loreen Q.</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">PP</div>
+        <div class="team-name">Pumares, Precious T.</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">SA</div>
+        <div class="team-name">Sese, Amanda Jeanella J.</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">SC</div>
+        <div class="team-name">Supremido, Chloe Mae M.</div>
+        <div class="team-role">Proponent</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">SR</div>
+        <div class="team-name">Simon-Panaga, Rafmarine</div>
+        <div class="team-role">Proponent &amp; Developer</div>
+      </div>
+    </div>
+
+    <div class="endorsement-bar">
+      <div class="endorse-item">
+        <small>Endorsed By</small>
+        <strong>Dr. Raymund F. Mamayson, RN</strong>
+        <span>Department Head, SONAHBS Nursing Program</span>
+      </div>
+      <div class="endorse-item">
+        <small>Approved By</small>
+        <strong>Dr. Elizabeth H. Bautista, RN</strong>
+        <span>Associate Dean, SONAHBS Nursing Program</span>
+      </div>
+      <div class="endorse-item">
+        <small>Pilot Site</small>
+        <strong>City Camp District Health Center</strong>
+        <span>Baguio City, CAR, Philippines</span>
+      </div>
+      <div class="endorse-item">
+        <small>Pilot Site Contact</small>
+        <strong>Mr. Andrew Nathaniel Ferrer, RN</strong>
+        <span>Head Nurse, City Camp District Health Center</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-brand-name">i<span class="gold">Kalinga</span> SMS</div>
+        <p>A free, offline-first SMS health notification system for barangay health centers in the Philippines. Built by nursing students at SONAHBS. For the community.</p>
+      </div>
+      <div class="footer-col">
+        <h4>The App</h4>
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how">How It Works</a></li>
+          <li><a href="#team">The Team</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Downloads</h4>
+        <ul>
+          <li><a href="#download">Latest Version</a></li>
+          <li><a href="#release-notes">Release Notes</a></li>
+          <li><a href="#faq">Installation Guide</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#community">Report a Problem</a></li>
+          <li><a href="#community">Share an Idea</a></li>
+          <li><a href="#privacy">Privacy &amp; Compliance</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 iKalinga SMS — A QI Initiative by SONAHBS Nursing Students, Baguio City, Philippines. Free for community health centers.</div>
+      <div><a href="#privacy">Privacy &amp; RA 10173 Compliance</a></div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script>
+  /* FAQ accordion */
+  function toggleFaq(el) {
+    const item = el.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  /* Release notes accordion */
+  function toggleRN(el) {
+    const body = el.nextElementSibling;
+    const toggle = el.querySelector('.rn-toggle');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    toggle.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+  }
+  /* Set initial rotation for open release notes */
+  document.querySelectorAll('.rn-body.open').forEach(b => {
+    b.previousElementSibling.querySelector('.rn-toggle').style.transform = 'rotate(180deg)';
+  });
+
+  /* Mobile nav toggle */
+  function toggleNav() {
+    document.getElementById('nav-links').classList.toggle('open');
+  }
+  /* Close mobile nav on link click */
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.getElementById('nav-links').classList.remove('open');
+    });
+  });
+
+  /* Smooth scroll for all anchor links */
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        const offset = 70; /* navbar height */
+        const top = target.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    });
+  });
+
+  /* Navbar active state on scroll */
+  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+  const sections = document.querySelectorAll('section[id]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 80) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.background = a.getAttribute('href') === '#' + current
+        ? 'rgba(255,255,255,0.12)' : '
