@@ -69,7 +69,6 @@ C:\Adrian\iKalingaWebsite\index.html
 
 ## Related
 
-- **App repository:** *(link to iKalingaSMS app repo if public)*
 - **Bug reports:** https://forms.gle/AFVFBJJEGbjb2Fc38
 - **Feature requests:** https://forms.gle/9kFkyohzcz4pxE9f7
 
