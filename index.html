@@ -1039,7 +1039,7 @@
         <div class="dl-ver-badge">⭐ Latest Stable Release</div>
         <div class="dl-title">iKalingaSMS — Version 1.0.0</div>
         <div class="dl-meta">Released: May 2026 &nbsp;·&nbsp; Platform: Windows 10 / 11 (64-bit) &nbsp;·&nbsp; Size: ~45 MB</div>
-        <p class="dl-desc">Includes the iKalingaSMS installer, SIM7600X USB modem drivers for Windows 10/11, and the full Setup &amp; User Manual (PDF).</p>
+        <p class="dl-desc">Includes the iKalingaSMS installer and the full Setup &amp; User Manual (PDF). USB modem drivers must be installed separately — see the user manual for instructions.</p>
         <a href="https://drive.google.com/drive/folders/1sj7T8m5o-G1GzfLhlneug1BvNRS_Dz1d?usp=sharing" target="_blank" class="btn btn-gold">
           ⬇ Download Installer (.exe) — Google Drive
         </a>
@@ -1056,7 +1056,7 @@
         <ul>
           <li>Windows 10 or Windows 11 (64-bit)</li>
           <li>.NET 6.0 Runtime or later (bundled in installer)</li>
-          <li>SIM7600X USB Modem drivers (bundled in installer)</li>
+          <li>USB modem drivers installed separately — navigate to the Support or Downloads section of your modem manufacturer's website to locate the driver installer and setup guide for your model</li>
           <li>At least 200 MB of free disk space</li>
           <li>Minimum 4 GB RAM recommended</li>
           <li>No internet connection required after installation</li>
@@ -1333,7 +1333,7 @@
           <span class="faq-arrow">▼</span>
         </div>
         <div class="faq-a">
-          The <strong>Waveshare SIM7600X 4G HAT (USB version)</strong> is the recommended modem. It supports AT Commands over a standard serial port, includes a 4G LTE antenna, and its drivers are included in the iKalingaSMS installer package. Any USB GSM Modem that uses the Hayes AT Command set and appears as a "SimTech AT Port" in Windows Device Manager should also work, but the SIM7600X has been tested and verified.
+          The <strong>Waveshare SIM7600X 4G HAT (USB version)</strong> is the recommended modem. It supports AT Commands over a standard serial port and includes a 4G LTE antenna. Navigate to the Support or Downloads section of your modem manufacturer's website to locate the specific driver installer and setup guide for your model. Any USB GSM Modem that uses the Hayes AT Command set and appears as a "SimTech AT Port" in Windows Device Manager should also work, but the SIM7600X has been tested and verified.
         </div>
       </div>
 
@@ -1529,7 +1529,7 @@
 ══════════════════════════════════════ -->
 <script>
   /* FAQ accordion */
-  function toggleFaq(el) {
+  window.toggleFaq = function(el) {
     const item = el.closest('.faq-item');
     const isOpen = item.classList.contains('open');
     document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
@@ -1537,7 +1537,7 @@
   }
 
   /* Release notes accordion */
-  function toggleRN(el) {
+  window.toggleRN = function(el) {
     const body = el.nextElementSibling;
     const toggle = el.querySelector('.rn-toggle');
     const isOpen = body.classList.contains('open');
@@ -1550,7 +1550,7 @@
   });
 
   /* Mobile nav toggle */
-  function toggleNav() {
+  window.toggleNav = function() {
     document.getElementById('nav-links').classList.toggle('open');
   }
   /* Close mobile nav on link click */
@@ -1563,7 +1563,9 @@
   /* Smooth scroll for all anchor links */
   document.querySelectorAll('a[href^="#"]').forEach(link => {
     link.addEventListener('click', e => {
-      const target = document.querySelector(link.getAttribute('href'));
+      const href = link.getAttribute('href');
+      if (href === '#') return;
+      const target = document.querySelector(href);
       if (target) {
         e.preventDefault();
         const offset = 70; /* navbar height */
@@ -1573,4 +1575,19 @@
     });
   });
 
-  /* Navbar acti
+  /* Navbar active-link highlight on scroll */
+  const sections = document.querySelectorAll('section[id], footer[id]');
+  const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
